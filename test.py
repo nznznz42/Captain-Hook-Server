@@ -1,12 +1,22 @@
-import asyncio
-import websockets
+import websocket
 
-async def receive_messages():
-    uri = "ws://captain-hook-server.onrender.com/ws"  # Replace "your.domain.com/ws" with the actual WebSocket URL
+def on_message(ws, message):
+    print(f"Received message: {message}")
 
-    async with websockets.connect(uri) as websocket:
-        while True:
-            message = await websocket.recv()
-            print("Received message:", message)
+def on_error(ws, error):
+    print(f"Error: {error}")
 
-asyncio.run(receive_messages())
+def on_close(ws):
+    print("Connection closed")
+
+def on_open(ws):
+    print("Connection established")
+
+if __name__ == "__main__":
+    websocket.enableTrace(True)
+    ws = websocket.WebSocketApp("ws://your_domain_or_ip:8080/ws",
+                                on_message = on_message,
+                                on_error = on_error,
+                                on_close = on_close)
+    ws.on_open = on_open
+    ws.run_forever()

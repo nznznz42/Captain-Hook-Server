@@ -22,7 +22,7 @@ func main() {
 	})
 
 	// Start server
-	address := "0.0.0.0:8080" // Listen on all interfaces on port 8080
+	address := "0.0.0.0:10000" // Listen on all interfaces on port 8080
 	log.Printf("Server started and listening on %s\n", address)
 	log.Fatal(http.ListenAndServe(address, nil))
 }
