@@ -1,53 +1,32 @@
 package main
 
 import (
-	"log"
+	"fmt"
 	"net/http"
-
-	"github.com/gorilla/websocket"
+	"os"
+	"os/signal"
+	"syscall"
 )
 
-func main() {
-	// Create a new Upgrader
-	upgrader := websocket.Upgrader{
-		CheckOrigin: func(r *http.Request) bool {
-			// Allow all connections
-			return true
-		},
-	}
-
-	// Define WebSocket upgrade handler
-	http.HandleFunc("/ws", func(w http.ResponseWriter, r *http.Request) {
-		handleWebSocket(w, r, upgrader)
-	})
-
-	// Start server
-	address := "0.0.0.0:10000" // Listen on all interfaces on port 8080
-	log.Printf("Server started and listening on %s\n", address)
-	log.Fatal(http.ListenAndServe(address, nil))
+func handler(w http.ResponseWriter, r *http.Request) {
+	fmt.Fprintf(w, "Hello, World!")
 }
 
-func handleWebSocket(w http.ResponseWriter, r *http.Request, upgrader websocket.Upgrader) {
-	// Upgrade HTTP connection to WebSocket
-	conn, err := upgrader.Upgrade(w, r, nil)
-	if err != nil {
-		log.Printf("Failed to upgrade to WebSocket: %v\n", err)
-		return
-	}
-	defer conn.Close()
+func main() {
+	http.HandleFunc("/", handler)
+	fmt.Println("Server listening on port 10000...")
 
-	// Send confirmation message
-	if err := conn.WriteMessage(websocket.TextMessage, []byte("Hello, world!")); err != nil {
-		log.Printf("Failed to send confirmation message: %v\n", err)
-		return
-	}
-
-	// Keep connection open
-	for {
-		_, _, err := conn.ReadMessage()
+	// Run the server in a goroutine
+	go func() {
+		err := http.ListenAndServe("0.0.0.0:10000", nil)
 		if err != nil {
-			log.Printf("Error reading message: %v\n", err)
-			break
+			fmt.Println("Error:", err)
 		}
-	}
+	}()
+
+	// Listen for interrupt signals
+	sig := make(chan os.Signal, 1)
+	signal.Notify(sig, syscall.SIGINT, syscall.SIGTERM)
+	<-sig
+	fmt.Println("Shutting down server...")
 }
