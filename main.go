@@ -3,30 +3,36 @@ package main
 import (
 	"fmt"
 	"net/http"
-	"os"
-	"os/signal"
-	"syscall"
+	"time"
 )
 
+var clientIP string
+
 func handler(w http.ResponseWriter, r *http.Request) {
+	clientIP = r.RemoteAddr
 	fmt.Fprintf(w, "Hello, World!")
 }
 
+func sendGoodbye(ip string) {
+	fmt.Printf("Sending 'Goodbye, World!' to %s\n", ip)
+}
+
+func goodbyeScheduler() {
+	for {
+		time.Sleep(10 * time.Second)
+		if clientIP != "" {
+			sendGoodbye(clientIP)
+		}
+	}
+}
+
 func main() {
+	go goodbyeScheduler() // Start the scheduler goroutine
+
 	http.HandleFunc("/", handler)
 	fmt.Println("Server listening on port 10000...")
-
-	// Run the server in a goroutine
-	go func() {
-		err := http.ListenAndServe("0.0.0.0:10000", nil)
-		if err != nil {
-			fmt.Println("Error:", err)
-		}
-	}()
-
-	// Listen for interrupt signals
-	sig := make(chan os.Signal, 1)
-	signal.Notify(sig, syscall.SIGINT, syscall.SIGTERM)
-	<-sig
-	fmt.Println("Shutting down server...")
+	err := http.ListenAndServe("0.0.0.0:10000", nil)
+	if err != nil {
+		fmt.Println("Error:", err)
+	}
 }
