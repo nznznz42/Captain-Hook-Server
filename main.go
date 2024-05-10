@@ -23,7 +23,7 @@ func main() {
 
 	// Start server
 	log.Println("Server started")
-	log.Fatal(http.ListenAndServe(":8080", nil)) // Adjust port as needed
+	log.Fatal(http.ListenAndServe(":10000", nil)) // Adjust port as needed
 }
 
 func handleWebSocket(w http.ResponseWriter, r *http.Request, upgrader websocket.Upgrader) {
