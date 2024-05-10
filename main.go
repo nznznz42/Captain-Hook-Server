@@ -22,8 +22,9 @@ func main() {
 	})
 
 	// Start server
-	log.Println("Server started")
-	log.Fatal(http.ListenAndServe(":8080", nil)) // Adjust port as needed
+	address := "0.0.0.0:8080" // Listen on all interfaces on port 8080
+	log.Printf("Server started and listening on %s\n", address)
+	log.Fatal(http.ListenAndServe(address, nil))
 }
 
 func handleWebSocket(w http.ResponseWriter, r *http.Request, upgrader websocket.Upgrader) {
