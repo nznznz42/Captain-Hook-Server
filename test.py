@@ -1,30 +1,34 @@
-import requests
-import time
+from http.server import BaseHTTPRequestHandler, HTTPServer
+import threading
 
-def send_request():
-    url = "http://your_vps_ip_address:10000"  # Replace "your_vps_ip_address" with your VPS's IP address
-    try:
-        response = requests.get(url)
-        if response.status_code == 200:
-            print("Response from server:", response.text)
-            return response.text
-        else:
-            print("Error:", response.status_code)
-    except requests.exceptions.RequestException as e:
-        print("Error:", e)
+class RequestHandler(BaseHTTPRequestHandler):
+    def do_GET(self):
+        if self.path == "/hello":
+            self.send_response(200)
+            self.send_header("Content-type", "text/plain")
+            self.end_headers()
+            self.wfile.write(b"Hello, world!")
+
+class GoServerConnection:
+    def __init__(self):
+        self.go_program_connection = None
+
+def run_server(go_server_connection):
+    server_address = ('', 8000)
+    httpd = HTTPServer(server_address, RequestHandler)
+    go_server_connection.go_program_connection = httpd
+    print("Starting server...")
+    httpd.serve_forever()
 
 def main():
-    initial_response = send_request()
-    if initial_response == "Hello, World!":
-        print("Received 'Hello, World!' from server. Waiting for 'Goodbye, World!'...")
-        time.sleep(10)  # Wait for 10 seconds
-        goodbye_response = send_request()
-        if goodbye_response == "Goodbye, World!":
-            print("Received 'Goodbye, World!' from server.")
-        else:
-            print("Unexpected response from server after 10 seconds:", goodbye_response)
-    else:
-        print("Unexpected response from server:", initial_response)
+    go_server_connection = GoServerConnection()
+
+    # Start the Python HTTP server
+    server_thread = threading.Thread(target=run_server, args=(go_server_connection,))
+    server_thread.start()
+
+    # Wait for the Go program to initiate further communication
+    input("Press Enter to exit...")
 
 if __name__ == "__main__":
     main()
