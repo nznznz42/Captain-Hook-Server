@@ -12,7 +12,7 @@ func main() {
 	//	fmt.Println("usage main.go <domain> <port>")
 	//	log.Fatalf("invalid parameter count")
 	//}
-	domain := "rahulsk.dev"
+	domain := "wss://rahulsk.dev"
 	port := 10000
 
 	clientsManager := NewManager()
