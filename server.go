@@ -18,7 +18,7 @@ import (
 //	PingWaitTime = (PongWaitTime * 9) / 10
 //
 // )
-const PongWaitTime = time.Second
+const PongWaitTime = 1 * time.Minute
 const PingWaitTime = (PongWaitTime * 9) / 10
 
 var upgrader = websocket.Upgrader{
